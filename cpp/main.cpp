@@ -29,43 +29,63 @@
 */
 
 #include <avr/io.h>
+
 #include "port.hpp"
+#include "pin.hpp"
+
+/* Create a typedef c+11 style for a pin for later usage, do this in your config file */
+using TestPin = Pin<PortB, 1>;
 
 /* Behold, this is actually living in flash and taking up precious Flash space */
-Mosfet globalmosfet{};
-	
+TestPin globaltestpin;
+
 int main()
-{
-	
+{	
+
 	/* Showcase for the different modes compared against the usual ugly AVR style */
+	
+	/* Showcase for setting pin */
 	{
 		PORTB |= (1 << 1);
-		Mosfet::setpin();
-		Mosfet{}.setpin();
-		Mosfet mosfet{};
-		mosfet.setpin();
-		globalmosfet.setpin();		
+
+		TestPin testpin{};
+		testpin.setpin();
+		TestPin{}.setpin();
+		TestPin::setpin();
+		globaltestpin.setpin();
 	}
 	
+	/* Showcase for setting toggling */
+	{
+		PORTB ^= (1 << 1);
+
+		TestPin testpin{};
+		testpin.togglepin();
+		TestPin{}.togglepin();
+		TestPin::togglepin();
+		globaltestpin.togglepin();
+	}
 	
 	/* Showcase for reading a pin, reading volatile will make this not get optimized away */
 	{
 		PINB & (1<< 1);
-		Mosfet::readpin();
-		Mosfet{}.readpin();
-		Mosfet mosfet{};
-		mosfet.readpin();
-		globalmosfet.readpin();
+
+		TestPin testpin{};
+		testpin.readpin();
+		TestPin{}.readpin();
+		TestPin::readpin();
+		globaltestpin.readpin();
 	}
 	
-	/* Showcase for setting outputs */
+	/* Showcase for setting output direction */
 	{
 		DDRB |= (1 << 1);
-		Mosfet::setasoutput();
-		Mosfet{}.setasoutput();
-		Mosfet mosfet{};
-		mosfet.setasoutput();
-		globalmosfet.setasoutput();		
+		
+		TestPin testpin{};
+		testpin.setasoutput();
+		TestPin{}.setasoutput();
+		TestPin::setasoutput();
+		globaltestpin.setasoutput();
 	}
 	
 	while(1)

@@ -29,64 +29,107 @@
  * These basically remove the volatile pointer and dereference qualifier from the addresses 
  * Thus enabling the addresses to be added into constexpr expressions such as template arguments
  * At the end of the file, these modifications are remade
+ * 
+ * The memory address space is a maximal of uint16_t on an AVR, so casting to uint16_t is fine
 */
 #undef _MMIO_BYTE
-#define _MMIO_BYTE(mem_addr) (uint8_t)(mem_addr)
+#define _MMIO_BYTE(mem_addr) (uint16_t)(mem_addr)
 #undef _MMIO_WORD
 #define _MMIO_WORD(mem_addr) (uint16_t)(mem_addr)
 #undef _MMIO_DWORD
-#define _MMIO_DWORD(mem_addr) (uint32_t)(mem_addr)
+#define _MMIO_DWORD(mem_addr) (uint16_t)(mem_addr)
 #include <avr/io.h>
 
 
 
 
-
+/*This is the actual register size, which is 8bit of course */
 using PortType = volatile uint8_t *;
 
 
-/* Using the ports templatized will make them as effective as if you would use your regular AVR bit toggling, uggh*/
-template <uint8_t portx, uint8_t pin>
+/* Using the ports templatized will make them as effective as if you would use your regular AVR bit toggling, uggh
+ * 
+ * Note that the template uses uint16_t because on AVRs  with bigger pin count the PORT address might be on a 16bit address region
+*/
+template <uint16_t portx>
 class Port{
 public:
-	void static setpin()
+	void static setpin(uint8_t pin)
 	{
 		*reinterpret_cast<PortType>(portx) |= (1 << pin);
 	}
 	
-	void static clearpin()
+	void static clearpin(uint8_t pin)
 	{
-		*reinterpret_cast<PortType>(portx) |= (1 << pin);
+		*reinterpret_cast<PortType>(portx) &= ~(1 << pin);
 	}
 	
-	void static togglepin()
+	void static togglepin(uint8_t pin)
 	{
-		*reinterpret_cast<PortType>(portx) |= (1 << pin);
+		*reinterpret_cast<PortType>(portx) ^= (1 << pin);
 	}
 	
-	auto static readpin()
+	auto static readpin(uint8_t pin)
 	{
 		return (*reinterpret_cast<PortType>(pinx) & (1 << pin));
 	}
 	
-	void static setasinput()
+	void static setasinput(uint8_t pin)
 	{
 		*reinterpret_cast<PortType>(ddrx) &= ~(1 << pin);
 	}
 	
-	void static setasoutput()
+	void static setasoutput(uint8_t pin)
 	{
 		*reinterpret_cast<PortType>(ddrx) |= (1 << pin);
 	}
 private:
-constexpr static uint8_t pinx{portx-2};
-constexpr static uint8_t ddrx{portx-1};
+/* On the AVR  architecture the register mapping is always the same:
+ * n   : PINX
+ * n+1 : DDRX
+ * n+2 : PORTX
+*/
+constexpr static uint16_t pinx{portx-2};
+constexpr static uint16_t ddrx{portx-1};
 };
 
-/* Create your pin definitions here 
- * Remember, that PORTA, PORTB and etc here are only normal uint8_t, and hence can be used as template arguments
-*/
-using Mosfet = Port<PORTB, 1>;
+
+#ifdef PORTA
+using PortA = Port<PORTA>;
+#endif
+#ifdef PORTB
+using PortB = Port<PORTB>;
+#endif // PORTB
+#ifdef PORTC
+using PortC = Port<PORTC>;
+#endif // PORTC
+#ifdef PORTD
+using PortD = Port<PORTD>;
+#endif // PORTD
+#ifdef PORTE
+using PortE = Port<PORTE>;
+#endif // PORTE
+#ifdef PORTF
+using PortF = Port<PORTF>;
+#endif // PORTF
+#ifdef PORTG
+using PortG = Port<PORTG>;
+#endif // PORTG
+#ifdef PORTH
+using PortH = Port<PORTH>;
+#endif // PORTH
+#ifdef PORTI
+using PortI = Port<PORTI>;
+#endif // PORTI
+#ifdef PORTJ
+using PortJ = Port<PORTJ>;
+#endif // PORTJ
+#ifdef PORTK
+using PortK = Port<PORTK>;
+#endif // PORTK
+#ifdef PORTL
+using PortL = Port<PORTL>;
+#endif // PORTL
 
 
 
