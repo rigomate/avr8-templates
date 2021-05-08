@@ -52,7 +52,7 @@ public:
 	
 	auto static readpin()
 	{
-		TPort{}.readpin(pin);
+		return TPort{}.readpin(pin);
 	}
 	
 	void static setasinput()
