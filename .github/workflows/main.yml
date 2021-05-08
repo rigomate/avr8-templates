@@ -13,4 +13,6 @@ jobs:
         with:
           fetch-depth: 1
       - name: Run Makefile
-        run: avr-g++ -mmcu=atmega88pa cpp/main.cpp -std=c++14 -Wall
+        run: |
+          sudo apt-get install gcc-avr binutils-avr avr-libc
+          avr-g++ -mmcu=atmega88pa cpp/main.cpp -std=c++14 -Wall
