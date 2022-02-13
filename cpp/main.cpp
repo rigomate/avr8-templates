@@ -68,7 +68,7 @@ int main()
 	
 	/* Showcase for reading a pin, reading volatile will make this not get optimized away */
 	{
-		PINB & (1<< 1);
+		PINB &= ~(1<< 1);
 
 		TestPin testpin{};
 		testpin.readpin();
